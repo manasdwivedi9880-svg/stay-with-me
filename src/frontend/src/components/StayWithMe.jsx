@@ -19,10 +19,13 @@
  * UI NOTES:
  *   - State 1 → State 2 uses a 2-second cross-fade (opacity transition).
  *   - State 2 background: radial gradient + base64 grain texture + centered aura.
+ *   - Exit button is hidden (opacity 0, pointer-events none) during State 1;
+ *     it fades in with State 2 over the same 2s cross-fade.
  *   - All visual changes are CSS-only; no logic has been modified.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
+import { X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // ─── Audio Socket ─────────────────────────────────────────────────────────────
@@ -287,6 +290,12 @@ export default function StayWithMe() {
     return () => clearTimeout(timer);
   }, [isPlayerActive]);
 
+  // ─── Exit Socket ───────────────────────────────────────────────────────────
+  // TODO (developer): replace this stub with your home-screen navigation logic.
+  const handleExitClick = () => {
+    console.log("User requested to exit session");
+  };
+
   return (
     <div
       aria-label="Stay With Me — focus overlay"
@@ -364,6 +373,47 @@ export default function StayWithMe() {
           pointerEvents: "none",
         }}
       />
+
+      {/*
+       * ── Exit Button — Top-Right corner ──
+       * Visible only on State 2 (audio player). Hidden during State 1 (orb)
+       * using the same opacity/pointer-events pattern as the cross-fade layers.
+       * TODO (developer): replace handleExitClick body with home-screen navigation.
+       */}
+      <button
+        type="button"
+        onClick={handleExitClick}
+        aria-label="Exit session"
+        data-ocid="staywithme.close_button"
+        style={{
+          position: "absolute",
+          top: "2rem",
+          right: "2rem",
+          zIndex: 10,
+          background: "transparent",
+          border: "none",
+          cursor: isPlayerActive ? "pointer" : "default",
+          padding: "4px",
+          color: "#0F172A",
+          opacity: isPlayerActive ? 1 : 0,
+          pointerEvents: isPlayerActive ? "auto" : "none",
+          transition: "opacity 2s ease-in-out",
+        }}
+        onMouseEnter={(e) => {
+          if (isPlayerActive) e.currentTarget.style.opacity = "0.7";
+        }}
+        onMouseLeave={(e) => {
+          if (isPlayerActive) e.currentTarget.style.opacity = "1";
+        }}
+        onTouchStart={(e) => {
+          if (isPlayerActive) e.currentTarget.style.opacity = "0.7";
+        }}
+        onTouchEnd={(e) => {
+          if (isPlayerActive) e.currentTarget.style.opacity = "1";
+        }}
+      >
+        <X size={26} strokeWidth={1.5} color="#0F172A" />
+      </button>
 
       {/* ── Content layer ── */}
       <main
